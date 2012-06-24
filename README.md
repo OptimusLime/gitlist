@@ -41,6 +41,9 @@ In order to run GitList on your server, you'll need:
 * Apache and mod_rewrite enabled
 * PHP 5.3.3
 
+
+
+
 ## Installing
 Download the GitList latest package and decompress to your `/var/www/gitlist` folder, or anywhere else you want to place GitList. You can also clone the repository:
 
@@ -48,7 +51,60 @@ Download the GitList latest package and decompress to your `/var/www/gitlist` fo
 git clone https://github.com/klaussilveira/gitlist.git /var/www/gitlist
 ```
 
-Rename the `config.ini-example` file to `config.ini`. Now open up the `config.ini` and configure your installation. You'll have to provide where your repositories are located and the base GitList URL (in our case, http://localhost/gitlist). Now, let's create the cache folder and give the correct permissions:
+Rename the `config.ini-example` file to `config.ini`. Now open up the `config.ini` and configure your installation. You'll have to provide where your repositories are located and the base GitList URL (in our case, http://localhost/gitlist or in the cloud: http://[amazon elastic ip address]/gitlist). Now, let's create the cache folder and give the correct permissions:
+
+
+
+#Cloud based installation:
+
+I grabbed an Ubuntu 11.04 Community AMI (with Node installed I think -- for playing around later)
+ami-2f3dfb46
+Launch the instance 
+
+ssh into the ec2 instance,  user = ubuntu@[amazon provided address or elastic IP]
+
+
+sudo apt-get update
+sudo apt-get install git php5 apache2
+
+#this installed git, php and apache, pretty much everything you need
+#but you need to enable mod_write for apache
+
+sudo a2enmod rewrite
+
+#restart apache to have rewrite module enabled
+sudo /etc/init.d/apache2 restart
+
+
+
+#boom, updated
+#Now, I wanted to make the website's main directory redirect to the gitlist subdirectory 
+#so how do we do this? Well, we need a .htaccess file inside of our document root (/var/www/ by default)
+# I will assume it's at /var/www
+
+cd /var/www
+sudo vim .htaccess
+
+#this should read:
+<IfModule mod_rewrite.c>
+    Options +FollowSymlinks
+
+RewriteEngine On
+RewriteCond %{REQUEST_URI} !^/gitlist/index.php
+RewriteCond %{REMOTE_HOST} !^123\.456\.789
+RewriteCond %{REQUEST_URI} !^/gitlist/?
+RewriteCond %{REQUEST_URI} /(.*)$
+RewriteRule (.*) /gitlist/index.php [R=301,L]
+
+</IfModule>
+#and that's it. What you can see is that it will redirect any request coming in to our gitlist/index.php 
+#this means http://yourdomain.com/ => is accessing /var/www/gitlist/index.php
+#this also means, http://yourdomain.com/typingnothingohmygod will redirect to /var/www/gitlist/index.php
+
+#And that's really all I did differently to get this hosted on an amazon ec2 instance
+
+follow these other instructions...
+
 
 ```
 cd /var/www/gitlist
