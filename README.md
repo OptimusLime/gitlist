@@ -63,29 +63,35 @@ Launch the instance
 
 ssh into the ec2 instance,  user = ubuntu@[amazon provided address or elastic IP]
 
-
+```
 sudo apt-get update
 sudo apt-get install git php5 apache2
+```
+this installed git, php and apache, pretty much everything you need
+but you need to enable mod_write for apache
 
-#this installed git, php and apache, pretty much everything you need
-#but you need to enable mod_write for apache
-
+```
 sudo a2enmod rewrite
+```
 
-#restart apache to have rewrite module enabled
+restart apache to have rewrite module enabled
+
+```
 sudo /etc/init.d/apache2 restart
+```
 
 
+boom, updated
+Now, I wanted to make the website's main directory redirect to the gitlist subdirectory so how do we do this? Well, we need a .htaccess file inside of our document root (/var/www/ by default)
+I will assume it's at /var/www
 
-#boom, updated
-#Now, I wanted to make the website's main directory redirect to the gitlist subdirectory 
-#so how do we do this? Well, we need a .htaccess file inside of our document root (/var/www/ by default)
-# I will assume it's at /var/www
-
+```
 cd /var/www
 sudo vim .htaccess
+```
 
-#this should read:
+this should read:
+```
 <IfModule mod_rewrite.c>
     Options +FollowSymlinks
 
@@ -97,11 +103,14 @@ RewriteCond %{REQUEST_URI} /(.*)$
 RewriteRule (.*) /gitlist/index.php [R=301,L]
 
 </IfModule>
-#and that's it. What you can see is that it will redirect any request coming in to our gitlist/index.php 
-#this means http://yourdomain.com/ => is accessing /var/www/gitlist/index.php
-#this also means, http://yourdomain.com/typingnothingohmygod will redirect to /var/www/gitlist/index.php
+```
+And that's it. What you can see is that it will redirect any request coming in to our gitlist/index.php.
 
-#And that's really all I did differently to get this hosted on an amazon ec2 instance
+This means http://yourdomain.com/ => is accessing /var/www/gitlist/index.php
+
+This also means, http://yourdomain.com/typingnothingohmygod will redirect to /var/www/gitlist/index.php
+
+And that's really all I did differently to get this hosted on an amazon ec2 instance
 
 follow these other instructions...
 
